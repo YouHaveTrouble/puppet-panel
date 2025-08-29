@@ -7,10 +7,13 @@
   vertical-align: baseline;
   overflow-wrap: break-word;
   -webkit-font-smoothing: antialiased;
+  color: azure;
 }
 
 body {
   line-height: 1.5;
+  background-color: #1a1a1a;
+  color: azure;
 }
 
 ol, ul {
@@ -27,7 +30,7 @@ table {
 }
 
 button {
-  border: 1px solid black;
+  border: 1px solid azure;
   background: none;
   outline: none;
   font-size: inherit;
@@ -39,11 +42,11 @@ button {
 }
 
 button:focus-visible {
-  outline: 2px solid black;
+  outline: 2px solid azure;
 }
 
 input {
-  border: 1px solid black;
+  border: 1px solid azure;
   outline: none;
   padding: 0.25rem;
   &:required {
@@ -56,7 +59,7 @@ input {
 }
 
 input:focus-visible {
-  outline: 2px solid black;
+  outline: 2px solid azure;
 }
 
 img, picture, video, canvas, svg {
@@ -65,7 +68,7 @@ img, picture, video, canvas, svg {
 }
 
 [popover]:popover-open {
-  border: 1px solid black;
+  border: 1px solid azure;
   &::backdrop {
     background: rgba(0, 0, 0, 0.5);
   }

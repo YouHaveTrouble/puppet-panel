@@ -72,9 +72,10 @@ export default defineComponent({
   },
   props: {
     servers: {
-      type: Array as PropType<Array<Server>>,
-      required: true,
-    }
+      type: Object as PropType<Array<Server>>,
+      required: false,
+      default: [],
+    },
   },
   methods: {
     addServer(): void {

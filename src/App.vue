@@ -2,13 +2,13 @@
   <main>
     <ServerList
       v-if="currentView === 'server-list'"
-      :servers="servers"
+      :servers="servers as Array<Server>"
       @add-server="addServer"
-      @select-server="selectedServer = $event; currentView = 'server-view'"
+      @select-server="selectedServer = $event; currentView = 'server-view';"
     />
     <ServerView
       v-if="currentView === 'server-view' && selectedServer"
-      :server="selectedServer"
+      :server="selectedServer as Server|null"
     />
   </main>
 </template>
@@ -60,8 +60,6 @@ export default defineComponent({
       const server = new Server(serverData.id, serverData.hostname, serverData.port, serverData?.name || null);
       this.servers.push(server);
     }
-
-    this.servers = servers;
   },
   unmounted(): void {
     this.servers.forEach(server => {

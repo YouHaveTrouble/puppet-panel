@@ -1,5 +1,6 @@
 import {ServerState} from "@/models/ServerState";
 import Deferred from "@/models/Deferred";
+import NotificationEvent from "@/models/NotificationEvent";
 
 export default class Server {
 
@@ -43,23 +44,31 @@ export default class Server {
     socket.addEventListener("message", (event) => {
       console.log(`Message from ${this.hostname}:${this.port}:`, event.data);
       const message = JSON.parse(event.data);
+      // Handle RPC responses
       if (typeof message?.id === "number" && message?.result !== undefined) {
         const deferred = this.awaitingResponses.get(message.id);
         if (deferred === undefined) return;
         deferred.resolve(message.result);
+        return;
+      }
+
+      // Broadcast notifications as events
+      if (typeof message?.method === "string" && message?.method.startsWith("notification:")) {
+        const notificationEvent = new NotificationEvent(this.id, message.method.substring("notification:".length), message.params || {});
+        window.dispatchEvent(notificationEvent);
       }
     });
   }
 
   discover() {
     if (this.connection && this.connection.readyState === WebSocket.OPEN) {
-      this.connection.send(JSON.stringify({id:1 ,method:"rpc.discover"}));
+      this.connection.send(JSON.stringify({id: this.rpcIdCounter++ ,method:"rpc.discover"}));
     } else {
       console.warn(`WebSocket to ${this.hostname}:${this.port} is not open.`);
     }
   }
 
-  async sendMessage(method: string, payload: object | null = null): Promise<object> {
+  sendMessage(method: string, payload: object | null = null): Promise<object> {
     const id = this.rpcIdCounter++;
 
     const deferred = new Deferred<object>();
@@ -67,17 +76,17 @@ export default class Server {
     if (this.connection && this.connection.readyState === WebSocket.OPEN) {
       this.connection.send(JSON.stringify({id: id, method: method}));
     } else {
-      deferred.reject(new Error(`WebSocket to ${this.hostname}:${this.port} is not open.`))
+      deferred.reject(new Error(`WebSocket to ${this.hostname}:${this.port} is not open.`));
     }
 
-    this.awaitingResponses.set(id, deferred)
+    this.awaitingResponses.set(id, deferred);
 
     // Make it clean up after itself
     deferred.promise.finally(() => {
       this.awaitingResponses.delete(id);
     });
 
-    return await deferred.promise;
+    return deferred.promise;
   }
 
 }
